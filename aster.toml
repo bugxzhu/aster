@@ -1,0 +1,6 @@
+[project]
+name = "aster"
+phase = "P0"
+
+[toolchain]
+rust = "pinned via rust-toolchain.toml"
