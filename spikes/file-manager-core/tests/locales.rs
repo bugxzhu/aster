@@ -1,4 +1,4 @@
-use file_manager_slint::strings;
+use file_manager_core::strings;
 
 #[test]
 fn english_pack_loads_with_all_keys_filled() {

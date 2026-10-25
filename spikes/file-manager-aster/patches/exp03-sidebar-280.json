@@ -1,0 +1,9 @@
+[
+  {
+    "op": "set_prop",
+    "target": "sidebar",
+    "name": "width",
+    "value": "280dp",
+    "expect": "240dp"
+  }
+]

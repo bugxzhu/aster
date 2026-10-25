@@ -3,6 +3,9 @@ resolver = "2"
 members = [
     "xtask",
     "spikes/aster-ui-model",
+    "spikes/aster-backend-slint",
+    "spikes/file-manager-aster",
+    "spikes/file-manager-core",
     "spikes/file-manager-slint",
     "benchmarks/apps/B1-minimal",
 ]

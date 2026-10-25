@@ -26,6 +26,8 @@ pub struct Node {
     pub padding: f32,
     pub gap: f32,
     pub children: Vec<Node>,
+    /// Leaf content. `None` for containers.
+    pub widget: Option<Widget>,
 }
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize)]
@@ -50,6 +52,7 @@ impl Node {
             padding: 0.0,
             gap: 0.0,
             children: Vec::new(),
+            widget: None,
         }
     }
     pub fn with_width(mut self, w: Length) -> Self {
@@ -66,6 +69,10 @@ impl Node {
     }
     pub fn with_gap(mut self, g: f32) -> Self {
         self.gap = g;
+        self
+    }
+    pub fn with_widget(mut self, w: Widget) -> Self {
+        self.widget = Some(w);
         self
     }
     pub fn with_children(mut self, c: Vec<Node>) -> Self {
@@ -137,6 +144,222 @@ pub fn find_mut<'a>(root: &'a mut Node, id: &str) -> Option<&'a mut Node> {
         }
     }
     None
+}
+
+
+/// Leaf controls. Bindings are state keys (for example `ui.all_files`); callbacks are names.
+/// The model never refers to a rendering backend (02 section 7.2, 06 section 1.2).
+#[derive(Debug, Clone, PartialEq)]
+pub enum Widget {
+    /// Read-only text bound to a text state field.
+    Text { content: String },
+    /// Button whose label is a text state field; `on_click` takes no argument.
+    Button { label: String, on_click: String },
+    /// Single-line editor. `value` is two-way bound; `on_edit` receives the new text.
+    LineEdit { placeholder: String, value: String, on_edit: String },
+    /// Vertical list of file rows bound to a row-list state field; `on_select` receives the file name.
+    FileList { items: String, on_select: String },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FieldType {
+    Text,
+    FileRows,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct StateField {
+    pub name: String,
+    pub ty: FieldType,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct CallbackSpec {
+    pub name: String,
+    /// True if the callback receives one text argument.
+    pub takes_text: bool,
+}
+
+/// A complete window description: structure, state declarations and callbacks.
+#[derive(Debug, Clone, PartialEq)]
+pub struct UiSpec {
+    pub title: String,
+    pub min_height: f32,
+    pub preferred_width: f32,
+    pub preferred_height: f32,
+    /// Root node has `Kind::Window`; `min_width` is the window minimum width.
+    pub root: Node,
+    pub state: Vec<StateField>,
+    pub callbacks: Vec<CallbackSpec>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum SpecError {
+    DuplicateId(String),
+    UnknownStateKey { node: String, key: String },
+    BindingTypeMismatch { node: String, key: String },
+    UnknownCallback { node: String, name: String },
+    CallbackArgumentMismatch { node: String, name: String },
+}
+
+impl UiSpec {
+    /// Checks ids, state bindings (including field types) and callback signatures.
+    pub fn validate(&self) -> Result<(), SpecError> {
+        let mut ids = std::collections::HashSet::new();
+        self.validate_node(&self.root, &mut ids)
+    }
+
+    fn validate_node(
+        &self,
+        node: &Node,
+        ids: &mut std::collections::HashSet<String>,
+    ) -> Result<(), SpecError> {
+        if !ids.insert(node.id.clone()) {
+            return Err(SpecError::DuplicateId(node.id.clone()));
+        }
+        if let Some(w) = &node.widget {
+            self.validate_widget(&node.id, w)?;
+        }
+        for c in &node.children {
+            self.validate_node(c, ids)?;
+        }
+        Ok(())
+    }
+
+    fn field(&self, node: &str, key: &str, expected: FieldType) -> Result<(), SpecError> {
+        match self.state.iter().find(|f| f.name == key) {
+            None => Err(SpecError::UnknownStateKey { node: node.to_string(), key: key.to_string() }),
+            Some(f) if f.ty != expected => {
+                Err(SpecError::BindingTypeMismatch { node: node.to_string(), key: key.to_string() })
+            }
+            Some(_) => Ok(()),
+        }
+    }
+
+    fn callback(&self, node: &str, name: &str, takes_text: bool) -> Result<(), SpecError> {
+        match self.callbacks.iter().find(|c| c.name == name) {
+            None => Err(SpecError::UnknownCallback { node: node.to_string(), name: name.to_string() }),
+            Some(c) if c.takes_text != takes_text => Err(SpecError::CallbackArgumentMismatch {
+                node: node.to_string(),
+                name: name.to_string(),
+            }),
+            Some(_) => Ok(()),
+        }
+    }
+
+    fn validate_widget(&self, node: &str, w: &Widget) -> Result<(), SpecError> {
+        match w {
+            Widget::Text { content } => self.field(node, content, FieldType::Text),
+            Widget::Button { label, on_click } => {
+                self.field(node, label, FieldType::Text)?;
+                self.callback(node, on_click, false)
+            }
+            Widget::LineEdit { placeholder, value, on_edit } => {
+                self.field(node, placeholder, FieldType::Text)?;
+                self.field(node, value, FieldType::Text)?;
+                self.callback(node, on_edit, true)
+            }
+            Widget::FileList { items, on_select } => {
+                self.field(node, items, FieldType::FileRows)?;
+                self.callback(node, on_select, true)
+            }
+        }
+    }
+}
+
+/// Structured patch operation (03 section 6). Serialized as JSON with an `op` tag.
+#[derive(Debug, Clone, PartialEq, serde::Deserialize)]
+#[serde(tag = "op", rename_all = "snake_case")]
+pub enum PatchOp {
+    /// Set one property. `value` and `expect` use the textual forms "240dp", "fill", "wrap".
+    SetProp {
+        target: String,
+        name: String,
+        value: String,
+        #[serde(default)]
+        expect: Option<String>,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum PatchError {
+    TargetNotFound(String),
+    UnknownProperty(String),
+    BadValue(String),
+    /// The current value differs from `expect`; the patch is rejected (03 section 6.1).
+    Conflict { target: String, name: String, expected: String, actual: String },
+}
+
+fn parse_dp(s: &str) -> Option<f32> {
+    s.strip_suffix("dp")?.parse::<f32>().ok()
+}
+
+fn parse_length(s: &str) -> Option<Length> {
+    match s {
+        "fill" => Some(Length::Fill),
+        "wrap" => Some(Length::Wrap),
+        _ => parse_dp(s).map(Length::Dp),
+    }
+}
+
+fn read_prop(node: &Node, name: &str) -> Result<String, PatchError> {
+    match name {
+        "width" => Ok(match node.width {
+            Length::Dp(v) => format!("{v}dp"),
+            Length::Fill => "fill".to_string(),
+            Length::Wrap => "wrap".to_string(),
+        }),
+        "min_width" => Ok(format!("{}dp", node.min_width)),
+        "padding" => Ok(format!("{}dp", node.padding)),
+        "gap" => Ok(format!("{}dp", node.gap)),
+        other => Err(PatchError::UnknownProperty(other.to_string())),
+    }
+}
+
+fn write_prop(node: &mut Node, name: &str, value: &str) -> Result<(), PatchError> {
+    let bad = || PatchError::BadValue(format!("{name}={value}"));
+    match name {
+        "width" => node.width = parse_length(value).ok_or_else(bad)?,
+        "min_width" => node.min_width = parse_dp(value).ok_or_else(bad)?,
+        "padding" => node.padding = parse_dp(value).ok_or_else(bad)?,
+        "gap" => node.gap = parse_dp(value).ok_or_else(bad)?,
+        other => return Err(PatchError::UnknownProperty(other.to_string())),
+    }
+    Ok(())
+}
+
+/// Applies all operations to a copy of `spec`. The input is never modified, so a failed
+/// patch leaves the original spec unchanged (all-or-nothing, 03 section 6.3).
+pub fn apply_patch(spec: &UiSpec, ops: &[PatchOp]) -> Result<UiSpec, PatchError> {
+    let mut next = spec.clone();
+    for op in ops {
+        match op {
+            PatchOp::SetProp { target, name, value, expect } => {
+                let node = find_mut(&mut next.root, target)
+                    .ok_or_else(|| PatchError::TargetNotFound(target.clone()))?;
+                let actual = read_prop(node, name)?;
+                if let Some(expected) = expect {
+                    if *expected != actual {
+                        return Err(PatchError::Conflict {
+                            target: target.clone(),
+                            name: name.clone(),
+                            expected: expected.clone(),
+                            actual,
+                        });
+                    }
+                }
+                write_prop(node, name, value)?;
+            }
+        }
+    }
+    Ok(next)
+}
+
+/// Reads a property in textual form, for display and for `expect` checks.
+pub fn property_text(spec: &UiSpec, target: &str, name: &str) -> Option<String> {
+    let mut root = spec.root.clone();
+    let node = find_mut(&mut root, target)?;
+    read_prop(node, name).ok()
 }
 
 #[cfg(test)]

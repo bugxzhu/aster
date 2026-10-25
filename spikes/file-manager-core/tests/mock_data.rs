@@ -1,4 +1,4 @@
-use file_manager_slint::mock::{self};
+use file_manager_core::mock::{self};
 
 #[test]
 fn mock_data_has_files_for_list() {
