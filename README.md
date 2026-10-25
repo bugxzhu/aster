@@ -19,4 +19,4 @@ cargo run -p xtask -- check-english
 
 ## License
 
-To be decided (see `docs/adr/015-license.md`).
+MIT. The LICENSE file is pending the copyright holder and the third-party dependency review (see `docs/adr/015-license.md`).
