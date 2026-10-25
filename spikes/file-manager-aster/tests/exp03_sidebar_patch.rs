@@ -29,8 +29,14 @@ fn patched_sidebar_is_280_dp_in_the_real_layout() {
     let patched = apply_patch(&baseline, &ops).expect("patch applies");
 
     // Model level: the change is exactly one property.
-    assert_eq!(property_text(&baseline, "sidebar", "width").as_deref(), Some("240dp"));
-    assert_eq!(property_text(&patched, "sidebar", "width").as_deref(), Some("280dp"));
+    assert_eq!(
+        property_text(&baseline, "sidebar", "width").as_deref(),
+        Some("240dp")
+    );
+    assert_eq!(
+        property_text(&patched, "sidebar", "width").as_deref(),
+        Some("280dp")
+    );
 
     // Source level: the generated Slint differs in exactly one line.
     let before = to_slint_source(&baseline).unwrap();
@@ -67,6 +73,12 @@ fn stale_patch_is_rejected_and_the_window_is_not_built_from_it() {
         value: "280dp".to_string(),
         expect: Some("260dp".to_string()),
     }];
-    assert!(matches!(apply_patch(&baseline, &stale), Err(PatchError::Conflict { .. })));
-    assert_eq!(property_text(&baseline, "sidebar", "width").as_deref(), Some("240dp"));
+    assert!(matches!(
+        apply_patch(&baseline, &stale),
+        Err(PatchError::Conflict { .. })
+    ));
+    assert_eq!(
+        property_text(&baseline, "sidebar", "width").as_deref(),
+        Some("240dp")
+    );
 }

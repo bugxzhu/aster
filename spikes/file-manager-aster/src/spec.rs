@@ -4,7 +4,9 @@
 use aster_ui_model::{CallbackSpec, FieldType, Kind, Length, Node, StateField, UiSpec, Widget};
 
 fn text_label(id: &str, key: &str) -> Node {
-    Node::new(id, Kind::Leaf).with_widget(Widget::Text { content: key.to_string() })
+    Node::new(id, Kind::Leaf).with_widget(Widget::Text {
+        content: key.to_string(),
+    })
 }
 
 fn button(id: &str, label_key: &str, on_click: &str) -> Node {
@@ -25,12 +27,14 @@ pub fn file_manager_spec() -> UiSpec {
             text_label("favorites_label", "ui.favorites"),
         ]);
 
-    let toolbar = Node::new("toolbar", Kind::Row).with_gap(8.0).with_children(vec![
-        button("new_folder_button", "ui.new_folder", "new_folder_clicked"),
-        button("refresh_button", "ui.refresh", "refresh_clicked"),
-        button("theme_button", "ui.theme_label", "theme_toggled"),
-        button("language_button", "ui.language", "language_toggled"),
-    ]);
+    let toolbar = Node::new("toolbar", Kind::Row)
+        .with_gap(8.0)
+        .with_children(vec![
+            button("new_folder_button", "ui.new_folder", "new_folder_clicked"),
+            button("refresh_button", "ui.refresh", "refresh_clicked"),
+            button("theme_button", "ui.theme_label", "theme_toggled"),
+            button("language_button", "ui.language", "language_toggled"),
+        ]);
 
     let search = Node::new("search", Kind::Leaf).with_widget(Widget::LineEdit {
         placeholder: "ui.search_placeholder".to_string(),
@@ -48,8 +52,11 @@ pub fn file_manager_spec() -> UiSpec {
     let detail = Node::new("detail", Kind::Column)
         .with_width(Length::Dp(280.0))
         .with_padding(12.0)
-        .with_children(vec![Node::new("detail_text", Kind::Leaf)
-            .with_widget(Widget::Text { content: "detail_text".to_string() })]);
+        .with_children(vec![Node::new("detail_text", Kind::Leaf).with_widget(
+            Widget::Text {
+                content: "detail_text".to_string(),
+            },
+        )]);
 
     let main_row = Node::new("main_row", Kind::Row)
         .with_gap(12.0)
@@ -63,9 +70,14 @@ pub fn file_manager_spec() -> UiSpec {
 
     let root = Node::new("main", Kind::Window)
         .with_min_width(800.0)
-        .with_children(vec![Node::new("body", Kind::Row).with_children(vec![sidebar, content])]);
+        .with_children(vec![
+            Node::new("body", Kind::Row).with_children(vec![sidebar, content])
+        ]);
 
-    let text = |name: &str| StateField { name: name.to_string(), ty: FieldType::Text };
+    let text = |name: &str| StateField {
+        name: name.to_string(),
+        ty: FieldType::Text,
+    };
     UiSpec {
         title: "File Manager".to_string(),
         min_height: 500.0,
@@ -83,15 +95,36 @@ pub fn file_manager_spec() -> UiSpec {
             text("ui.search_placeholder"),
             text("query"),
             text("detail_text"),
-            StateField { name: "files".to_string(), ty: FieldType::FileRows },
+            StateField {
+                name: "files".to_string(),
+                ty: FieldType::FileRows,
+            },
         ],
         callbacks: vec![
-            CallbackSpec { name: "new_folder_clicked".to_string(), takes_text: false },
-            CallbackSpec { name: "refresh_clicked".to_string(), takes_text: false },
-            CallbackSpec { name: "theme_toggled".to_string(), takes_text: false },
-            CallbackSpec { name: "language_toggled".to_string(), takes_text: false },
-            CallbackSpec { name: "search_changed".to_string(), takes_text: true },
-            CallbackSpec { name: "file_selected".to_string(), takes_text: true },
+            CallbackSpec {
+                name: "new_folder_clicked".to_string(),
+                takes_text: false,
+            },
+            CallbackSpec {
+                name: "refresh_clicked".to_string(),
+                takes_text: false,
+            },
+            CallbackSpec {
+                name: "theme_toggled".to_string(),
+                takes_text: false,
+            },
+            CallbackSpec {
+                name: "language_toggled".to_string(),
+                takes_text: false,
+            },
+            CallbackSpec {
+                name: "search_changed".to_string(),
+                takes_text: true,
+            },
+            CallbackSpec {
+                name: "file_selected".to_string(),
+                takes_text: true,
+            },
         ],
     }
 }

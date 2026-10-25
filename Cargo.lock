@@ -1206,6 +1206,7 @@ name = "file-manager-aster"
 version = "0.0.0"
 dependencies = [
  "aster-backend-slint",
+ "aster-backend-text",
  "aster-ui-model",
  "file-manager-core",
  "i-slint-backend-testing",

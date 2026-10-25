@@ -2,7 +2,8 @@ use aster_ui_model::{apply_patch, PatchOp};
 use file_manager_aster::{create, spec::file_manager_spec};
 use slint::ComponentHandle;
 
-/// Usage: file-manager-aster [--patch <file.json>]
+/// Usage: file-manager-aster [--patch <file.json>] [--backend slint|text]
+/// `--backend text` prints the model as a text tree instead of opening a window (experiment 05).
 /// The patch is a JSON array of structured operations (03 section 6). It is applied to the
 /// model before the window is built, so the displayed window reflects the change.
 fn main() {
@@ -28,6 +29,19 @@ fn main() {
             eprintln!("patch rejected: {e:?}");
             std::process::exit(1);
         });
+    }
+    let backend = args
+        .iter()
+        .position(|a| a == "--backend")
+        .and_then(|pos| args.get(pos + 1).cloned())
+        .unwrap_or_else(|| "slint".to_string());
+    if backend == "text" {
+        print!("{}", aster_backend_text::render(&spec));
+        return;
+    }
+    if backend != "slint" {
+        eprintln!("unknown backend: {backend}");
+        std::process::exit(2);
     }
     let (session, _app) = match create(&spec) {
         Ok(v) => v,

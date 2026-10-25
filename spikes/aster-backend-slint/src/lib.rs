@@ -85,7 +85,11 @@ fn emit_node(out: &mut String, node: &Node, depth: usize) -> Result<(), CodegenE
     let id = element_id(&node.id);
     match (&node.kind, &node.widget) {
         (Kind::Row, None) | (Kind::Column, None) => {
-            let element = if node.kind == Kind::Row { "HorizontalLayout" } else { "VerticalLayout" };
+            let element = if node.kind == Kind::Row {
+                "HorizontalLayout"
+            } else {
+                "VerticalLayout"
+            };
             let _ = writeln!(out, "{indent}{id} := {element} {{");
             layout_props(node, &indent, out);
             for child in &node.children {
@@ -123,20 +127,42 @@ fn emit_widget(out: &mut String, w: &Widget, indent: &str) {
             let _ = writeln!(out, "{i}text: root.{};", prop_name(label));
             let _ = writeln!(out, "{i}clicked => {{ root.{}(); }}", prop_name(on_click));
         }
-        Widget::LineEdit { placeholder, value, on_edit } => {
+        Widget::LineEdit {
+            placeholder,
+            value,
+            on_edit,
+        } => {
             let _ = writeln!(out, "{i}placeholder-text: root.{};", prop_name(placeholder));
             let _ = writeln!(out, "{i}text <=> root.{};", prop_name(value));
-            let _ = writeln!(out, "{i}edited => {{ root.{}(self.text); }}", prop_name(on_edit));
+            let _ = writeln!(
+                out,
+                "{i}edited => {{ root.{}(self.text); }}",
+                prop_name(on_edit)
+            );
         }
         Widget::FileList { items, on_select } => {
-            let _ = writeln!(out, "{i}for file in root.{} : Rectangle {{", prop_name(items));
+            let _ = writeln!(
+                out,
+                "{i}for file in root.{} : Rectangle {{",
+                prop_name(items)
+            );
             let _ = writeln!(out, "{i}    height: 32px;");
-            let _ = writeln!(out, "{i}    TouchArea {{ clicked => {{ root.{}(file.name); }} }}", prop_name(on_select));
+            let _ = writeln!(
+                out,
+                "{i}    TouchArea {{ clicked => {{ root.{}(file.name); }} }}",
+                prop_name(on_select)
+            );
             let _ = writeln!(out, "{i}    HorizontalLayout {{");
             let _ = writeln!(out, "{i}        padding-left: 8px;");
-            let _ = writeln!(out, "{i}        Text {{ text: file.name; overflow: elide; horizontal-stretch: 1; }}");
+            let _ = writeln!(
+                out,
+                "{i}        Text {{ text: file.name; overflow: elide; horizontal-stretch: 1; }}"
+            );
             let _ = writeln!(out, "{i}        Text {{ text: file.kind; width: 120px; }}");
-            let _ = writeln!(out, "{i}        Text {{ text: file.modified; width: 100px; }}");
+            let _ = writeln!(
+                out,
+                "{i}        Text {{ text: file.modified; width: 100px; }}"
+            );
             let _ = writeln!(out, "{i}    }}");
             let _ = writeln!(out, "{i}}}");
         }
@@ -184,7 +210,10 @@ impl Session {
 
     pub fn set_text(&self, key: &str, value: &str) -> Result<(), String> {
         self.instance
-            .set_property(&prop_name(key), slint_interpreter::Value::String(value.into()))
+            .set_property(
+                &prop_name(key),
+                slint_interpreter::Value::String(value.into()),
+            )
             .map_err(|e| format!("{key}: {e}"))
     }
 
@@ -194,9 +223,18 @@ impl Session {
             .iter()
             .map(|r| {
                 let mut s = slint_interpreter::Struct::default();
-                s.set_field("name".to_string(), slint_interpreter::Value::String(r[0].as_str().into()));
-                s.set_field("kind".to_string(), slint_interpreter::Value::String(r[1].as_str().into()));
-                s.set_field("modified".to_string(), slint_interpreter::Value::String(r[2].as_str().into()));
+                s.set_field(
+                    "name".to_string(),
+                    slint_interpreter::Value::String(r[0].as_str().into()),
+                );
+                s.set_field(
+                    "kind".to_string(),
+                    slint_interpreter::Value::String(r[1].as_str().into()),
+                );
+                s.set_field(
+                    "modified".to_string(),
+                    slint_interpreter::Value::String(r[2].as_str().into()),
+                );
                 slint_interpreter::Value::Struct(s)
             })
             .collect();

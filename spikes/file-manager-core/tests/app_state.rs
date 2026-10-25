@@ -5,7 +5,10 @@ fn search_filters_rows_and_empty_query_restores_them() {
     let mut app = AppState::new().unwrap();
     let all = app.rows().len();
     app.search("report");
-    assert!(app.rows().iter().all(|f| f.name.to_lowercase().contains("report")));
+    assert!(app
+        .rows()
+        .iter()
+        .all(|f| f.name.to_lowercase().contains("report")));
     app.search("");
     assert_eq!(app.rows().len(), all);
 }

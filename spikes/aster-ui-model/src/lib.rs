@@ -146,7 +146,6 @@ pub fn find_mut<'a>(root: &'a mut Node, id: &str) -> Option<&'a mut Node> {
     None
 }
 
-
 /// Leaf controls. Bindings are state keys (for example `ui.all_files`); callbacks are names.
 /// The model never refers to a rendering backend (02 section 7.2, 06 section 1.2).
 #[derive(Debug, Clone, PartialEq)]
@@ -156,7 +155,11 @@ pub enum Widget {
     /// Button whose label is a text state field; `on_click` takes no argument.
     Button { label: String, on_click: String },
     /// Single-line editor. `value` is two-way bound; `on_edit` receives the new text.
-    LineEdit { placeholder: String, value: String, on_edit: String },
+    LineEdit {
+        placeholder: String,
+        value: String,
+        on_edit: String,
+    },
     /// Vertical list of file rows bound to a row-list state field; `on_select` receives the file name.
     FileList { items: String, on_select: String },
 }
@@ -228,17 +231,24 @@ impl UiSpec {
 
     fn field(&self, node: &str, key: &str, expected: FieldType) -> Result<(), SpecError> {
         match self.state.iter().find(|f| f.name == key) {
-            None => Err(SpecError::UnknownStateKey { node: node.to_string(), key: key.to_string() }),
-            Some(f) if f.ty != expected => {
-                Err(SpecError::BindingTypeMismatch { node: node.to_string(), key: key.to_string() })
-            }
+            None => Err(SpecError::UnknownStateKey {
+                node: node.to_string(),
+                key: key.to_string(),
+            }),
+            Some(f) if f.ty != expected => Err(SpecError::BindingTypeMismatch {
+                node: node.to_string(),
+                key: key.to_string(),
+            }),
             Some(_) => Ok(()),
         }
     }
 
     fn callback(&self, node: &str, name: &str, takes_text: bool) -> Result<(), SpecError> {
         match self.callbacks.iter().find(|c| c.name == name) {
-            None => Err(SpecError::UnknownCallback { node: node.to_string(), name: name.to_string() }),
+            None => Err(SpecError::UnknownCallback {
+                node: node.to_string(),
+                name: name.to_string(),
+            }),
             Some(c) if c.takes_text != takes_text => Err(SpecError::CallbackArgumentMismatch {
                 node: node.to_string(),
                 name: name.to_string(),
@@ -254,7 +264,11 @@ impl UiSpec {
                 self.field(node, label, FieldType::Text)?;
                 self.callback(node, on_click, false)
             }
-            Widget::LineEdit { placeholder, value, on_edit } => {
+            Widget::LineEdit {
+                placeholder,
+                value,
+                on_edit,
+            } => {
                 self.field(node, placeholder, FieldType::Text)?;
                 self.field(node, value, FieldType::Text)?;
                 self.callback(node, on_edit, true)
@@ -287,7 +301,12 @@ pub enum PatchError {
     UnknownProperty(String),
     BadValue(String),
     /// The current value differs from `expect`; the patch is rejected (03 section 6.1).
-    Conflict { target: String, name: String, expected: String, actual: String },
+    Conflict {
+        target: String,
+        name: String,
+        expected: String,
+        actual: String,
+    },
 }
 
 fn parse_dp(s: &str) -> Option<f32> {
@@ -334,7 +353,12 @@ pub fn apply_patch(spec: &UiSpec, ops: &[PatchOp]) -> Result<UiSpec, PatchError>
     let mut next = spec.clone();
     for op in ops {
         match op {
-            PatchOp::SetProp { target, name, value, expect } => {
+            PatchOp::SetProp {
+                target,
+                name,
+                value,
+                expect,
+            } => {
                 let node = find_mut(&mut next.root, target)
                     .ok_or_else(|| PatchError::TargetNotFound(target.clone()))?;
                 let actual = read_prop(node, name)?;

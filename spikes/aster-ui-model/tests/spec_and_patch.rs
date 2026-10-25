@@ -7,9 +7,11 @@ fn sample_spec() -> UiSpec {
     let sidebar = Node::new("sidebar", Kind::Column)
         .with_width(Length::Dp(240.0))
         .with_padding(16.0)
-        .with_children(vec![Node::new("all_files_label", Kind::Leaf).with_widget(Widget::Text {
-            content: "ui.all_files".to_string(),
-        })]);
+        .with_children(vec![Node::new("all_files_label", Kind::Leaf).with_widget(
+            Widget::Text {
+                content: "ui.all_files".to_string(),
+            },
+        )]);
     let content = Node::new("content", Kind::Column)
         .with_width(Length::Fill)
         .with_children(vec![
@@ -25,7 +27,9 @@ fn sample_spec() -> UiSpec {
         ]);
     let root = Node::new("main", Kind::Window)
         .with_min_width(800.0)
-        .with_children(vec![Node::new("body", Kind::Row).with_children(vec![sidebar, content])]);
+        .with_children(vec![
+            Node::new("body", Kind::Row).with_children(vec![sidebar, content])
+        ]);
     UiSpec {
         title: "File Manager".to_string(),
         min_height: 500.0,
@@ -33,14 +37,32 @@ fn sample_spec() -> UiSpec {
         preferred_height: 720.0,
         root,
         state: vec![
-            StateField { name: "ui.all_files".to_string(), ty: FieldType::Text },
-            StateField { name: "ui.search".to_string(), ty: FieldType::Text },
-            StateField { name: "query".to_string(), ty: FieldType::Text },
-            StateField { name: "files".to_string(), ty: FieldType::FileRows },
+            StateField {
+                name: "ui.all_files".to_string(),
+                ty: FieldType::Text,
+            },
+            StateField {
+                name: "ui.search".to_string(),
+                ty: FieldType::Text,
+            },
+            StateField {
+                name: "query".to_string(),
+                ty: FieldType::Text,
+            },
+            StateField {
+                name: "files".to_string(),
+                ty: FieldType::FileRows,
+            },
         ],
         callbacks: vec![
-            CallbackSpec { name: "search_changed".to_string(), takes_text: true },
-            CallbackSpec { name: "file_selected".to_string(), takes_text: true },
+            CallbackSpec {
+                name: "search_changed".to_string(),
+                takes_text: true,
+            },
+            CallbackSpec {
+                name: "file_selected".to_string(),
+                takes_text: true,
+            },
         ],
     }
 }
@@ -56,7 +78,10 @@ fn unknown_state_key_is_reported_with_node_id() {
     spec.state.retain(|f| f.name != "ui.search");
     assert_eq!(
         spec.validate(),
-        Err(SpecError::UnknownStateKey { node: "search".to_string(), key: "ui.search".to_string() })
+        Err(SpecError::UnknownStateKey {
+            node: "search".to_string(),
+            key: "ui.search".to_string()
+        })
     );
 }
 
@@ -64,17 +89,28 @@ fn unknown_state_key_is_reported_with_node_id() {
 fn binding_to_wrong_field_type_is_rejected() {
     // Binding a FileList to a text field must fail, as required by 02 section 7.2.
     let mut spec = sample_spec();
-    spec.state.iter_mut().find(|f| f.name == "files").unwrap().ty = FieldType::Text;
+    spec.state
+        .iter_mut()
+        .find(|f| f.name == "files")
+        .unwrap()
+        .ty = FieldType::Text;
     assert_eq!(
         spec.validate(),
-        Err(SpecError::BindingTypeMismatch { node: "list".to_string(), key: "files".to_string() })
+        Err(SpecError::BindingTypeMismatch {
+            node: "list".to_string(),
+            key: "files".to_string()
+        })
     );
 }
 
 #[test]
 fn callback_with_wrong_argument_shape_is_rejected() {
     let mut spec = sample_spec();
-    spec.callbacks.iter_mut().find(|c| c.name == "file_selected").unwrap().takes_text = false;
+    spec.callbacks
+        .iter_mut()
+        .find(|c| c.name == "file_selected")
+        .unwrap()
+        .takes_text = false;
     assert_eq!(
         spec.validate(),
         Err(SpecError::CallbackArgumentMismatch {
@@ -88,7 +124,10 @@ fn callback_with_wrong_argument_shape_is_rejected() {
 fn duplicate_ids_are_rejected() {
     let mut spec = sample_spec();
     spec.root.children[0].children[0].id = "content".to_string();
-    assert_eq!(spec.validate(), Err(SpecError::DuplicateId("content".to_string())));
+    assert_eq!(
+        spec.validate(),
+        Err(SpecError::DuplicateId("content".to_string()))
+    );
 }
 
 #[test]
@@ -99,8 +138,14 @@ fn patch_changes_sidebar_width_and_keeps_original_unchanged() {
     )
     .unwrap();
     let next = apply_patch(&spec, &ops).unwrap();
-    assert_eq!(property_text(&next, "sidebar", "width").as_deref(), Some("280dp"));
-    assert_eq!(property_text(&spec, "sidebar", "width").as_deref(), Some("240dp"));
+    assert_eq!(
+        property_text(&next, "sidebar", "width").as_deref(),
+        Some("280dp")
+    );
+    assert_eq!(
+        property_text(&spec, "sidebar", "width").as_deref(),
+        Some("240dp")
+    );
     assert_eq!(next.validate(), Ok(()));
 }
 
@@ -133,7 +178,10 @@ fn unknown_target_and_property_are_errors() {
         value: "1dp".to_string(),
         expect: None,
     }];
-    assert_eq!(apply_patch(&spec, &missing), Err(PatchError::TargetNotFound("nope".to_string())));
+    assert_eq!(
+        apply_patch(&spec, &missing),
+        Err(PatchError::TargetNotFound("nope".to_string()))
+    );
 
     let bad_prop = vec![PatchOp::SetProp {
         target: "sidebar".to_string(),
@@ -166,5 +214,8 @@ fn failed_multi_op_patch_applies_nothing() {
         },
     ];
     assert!(apply_patch(&spec, &ops).is_err());
-    assert_eq!(property_text(&spec, "sidebar", "width").as_deref(), Some("240dp"));
+    assert_eq!(
+        property_text(&spec, "sidebar", "width").as_deref(),
+        Some("240dp")
+    );
 }
