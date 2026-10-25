@@ -1212,6 +1212,7 @@ dependencies = [
  "i-slint-backend-testing",
  "serde_json",
  "slint",
+ "slint-interpreter",
 ]
 
 [[package]]
