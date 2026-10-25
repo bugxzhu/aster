@@ -4,6 +4,7 @@ members = [
     "xtask",
     "spikes/aster-ui-model",
     "spikes/aster-backend-slint",
+    "spikes/aster-backend-text",
     "spikes/file-manager-aster",
     "spikes/file-manager-core",
     "spikes/file-manager-slint",
