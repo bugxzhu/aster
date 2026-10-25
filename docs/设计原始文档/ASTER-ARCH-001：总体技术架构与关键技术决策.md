@@ -1,5 +1,7 @@
 # ASTER-ARCH-001：总体技术架构与关键技术决策
 
+> ADR index: `docs/adr/README.md`
+
 **项目：** Aster  
 **文档编号：** ASTER-ARCH-001  
 **版本：** V0.1 Draft  
