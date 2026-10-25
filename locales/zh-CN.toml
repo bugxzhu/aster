@@ -1,0 +1,11 @@
+[ui]
+new_folder = "新建文件夹"
+refresh = "刷新"
+theme_dark = "深色"
+theme_light = "浅色"
+search_placeholder = "搜索文件"
+all_files = "全部文件"
+recent = "最近使用"
+favorites = "收藏夹"
+no_selection = "未选择"
+language = "语言"

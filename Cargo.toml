@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["xtask", "spikes/aster-ui-model"]
+members = ["xtask", "spikes/aster-ui-model", "spikes/file-manager-slint"]
 
 [workspace.package]
 edition = "2021"

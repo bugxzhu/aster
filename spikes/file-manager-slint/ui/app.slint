@@ -1,0 +1,110 @@
+import { Button, LineEdit, ListView } from "std-widgets.slint";
+
+export struct FileRow {
+    name: string,
+    kind: string,
+    modified: string,
+}
+
+export component MainWindow inherits Window {
+    title: "File Manager (Spike)";
+    preferred-width: 1100px;
+    preferred-height: 720px;
+    min-width: 800px;
+    min-height: 500px;
+
+    in-out property <[FileRow]> files;
+    in-out property <string> query;
+    in-out property <bool> dark: false;
+    in-out property <string> selected-name: "";
+
+    // Localized labels, injected from the locale pack by the Rust side.
+    in-out property <string> lbl-new-folder: "New folder";
+    in-out property <string> lbl-refresh: "Refresh";
+    in-out property <string> lbl-theme-dark: "Dark";
+    in-out property <string> lbl-theme-light: "Light";
+    in-out property <string> lbl-search: "Search files";
+    in-out property <string> lbl-all-files: "All files";
+    in-out property <string> lbl-recent: "Recent";
+    in-out property <string> lbl-favorites: "Favorites";
+    in-out property <string> lbl-no-selection: "No selection";
+    in-out property <string> lbl-language: "Language";
+
+    callback search-changed(string);
+    callback theme-toggled();
+    callback language-toggled();
+
+    background: dark ? #15171C : #F7F8FA;
+
+    HorizontalLayout {
+        // Sidebar: fixed 240 dp
+        Rectangle {
+            width: 240px;
+            VerticalLayout {
+                padding: 16px;
+                spacing: 8px;
+                Text { text: lbl-all-files; }
+                Text { text: lbl-recent; }
+                Text { text: lbl-favorites; }
+            }
+        }
+
+        // Content: fills remaining width
+        VerticalLayout {
+            padding: 16px;
+            spacing: 12px;
+
+            HorizontalLayout {
+                spacing: 8px;
+                Button { text: lbl-new-folder; }
+                Button { text: lbl-refresh; }
+                Button {
+                    text: dark ? lbl-theme-light : lbl-theme-dark;
+                    clicked => { theme-toggled(); }
+                }
+                Button {
+                    text: lbl-language;
+                    clicked => { language-toggled(); }
+                }
+            }
+
+            LineEdit {
+                placeholder-text: lbl-search;
+                text <=> query;
+                edited => { search-changed(self.text); }
+            }
+
+            HorizontalLayout {
+                spacing: 12px;
+
+                ListView {
+                    horizontal-stretch: 1;
+                    for file in files : Rectangle {
+                        height: 32px;
+                        TouchArea {
+                            clicked => { selected-name = file.name; }
+                        }
+                        HorizontalLayout {
+                            padding-left: 8px;
+                            Text { text: file.name; overflow: elide; horizontal-stretch: 1; }
+                            Text { text: file.kind; width: 120px; }
+                            Text { text: file.modified; width: 100px; }
+                        }
+                    }
+                }
+
+                // Detail panel: fixed 280 dp
+                Rectangle {
+                    width: 280px;
+                    VerticalLayout {
+                        padding: 12px;
+                        Text {
+                            text: selected-name == "" ? lbl-no-selection : selected-name;
+                            wrap: word-wrap;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

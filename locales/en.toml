@@ -1,0 +1,11 @@
+[ui]
+new_folder = "New folder"
+refresh = "Refresh"
+theme_dark = "Dark"
+theme_light = "Light"
+search_placeholder = "Search files"
+all_files = "All files"
+recent = "Recent"
+favorites = "Favorites"
+no_selection = "No selection"
+language = "Language"
