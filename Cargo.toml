@@ -1,6 +1,11 @@
 [workspace]
 resolver = "2"
-members = ["xtask", "spikes/aster-ui-model", "spikes/file-manager-slint"]
+members = [
+    "xtask",
+    "spikes/aster-ui-model",
+    "spikes/file-manager-slint",
+    "benchmarks/apps/B1-minimal",
+]
 
 [workspace.package]
 edition = "2021"

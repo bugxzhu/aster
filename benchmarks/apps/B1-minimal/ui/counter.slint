@@ -1,0 +1,20 @@
+import { Button } from "std-widgets.slint";
+
+export component MainWindow inherits Window {
+    title: "B1 Minimal";
+    preferred-width: 400px;
+    preferred-height: 240px;
+    in-out property <int> count: 0;
+    callback increment();
+
+    VerticalLayout {
+        padding: 24px;
+        spacing: 16px;
+        Text { text: "Counter"; font-size: 20px; }
+        Text { text: "Count: " + count; }
+        Button {
+            text: "Increment";
+            clicked => { increment(); }
+        }
+    }
+}

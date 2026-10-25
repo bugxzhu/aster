@@ -1,0 +1,12 @@
+[package]
+name = "b1-minimal"
+version = "0.0.0"
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+slint = "1"
+
+[build-dependencies]
+slint-build = "1"
