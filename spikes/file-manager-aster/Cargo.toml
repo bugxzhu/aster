@@ -22,3 +22,4 @@ slint = "=1.18.1"
 
 [dev-dependencies]
 i-slint-backend-testing = "=1.18.1"
+slint-interpreter = "=1.18.1"
