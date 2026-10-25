@@ -10,3 +10,8 @@ aster-ui-model = { path = "../aster-ui-model" }
 slint = "=1.18.1"
 slint-interpreter = "=1.18.1"
 pollster = "0.4"
+i-slint-backend-testing = { version = "=1.18.1", optional = true }
+
+[features]
+# Headless geometry probe (verification only). Not part of production builds.
+layout-probe = ["dep:i-slint-backend-testing"]

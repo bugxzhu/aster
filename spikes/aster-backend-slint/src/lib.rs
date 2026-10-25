@@ -5,6 +5,9 @@
 //! `.slint` source and runs it with the Slint interpreter, so a changed model takes effect
 //! without recompiling Rust.
 
+#[cfg(feature = "layout-probe")]
+pub mod probe;
+
 use aster_ui_model::{FieldType, Kind, Length, Node, UiSpec, Widget};
 use std::fmt::Write;
 use std::path::PathBuf;
@@ -20,7 +23,7 @@ pub fn prop_name(key: &str) -> String {
     key.replace(['.', '_'], "-")
 }
 
-fn element_id(id: &str) -> String {
+pub fn element_id(id: &str) -> String {
     id.replace('_', "-")
 }
 
