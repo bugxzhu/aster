@@ -1,0 +1,188 @@
+{
+  "date": "2026-10-25",
+  "caliber": "benchmarks/results/SCHEMA.md#timing-caliber",
+  "build": {
+    "profile": "release (workspace profile: opt-level z, lto, codegen-units 1, strip, panic abort)",
+    "toolchain": "rustc 1.99.1 (58cf8f9c3 2026-10-13)"
+  },
+  "environment": {
+    "cpu": "Intel(R) Core(TM) i5-6267U CPU @ 2.90GHz",
+    "ram_bytes": 8589934592,
+    "os": "macOS 12.7.6 (21H1320)",
+    "display": "Built-in Retina LCD 2560 x 1600, window scale factor 1 (reported by Slint)",
+    "power": "'AC Power'; -InternalBattery-0 (id=6815843)\t90%; AC attached; not charging present: true",
+    "background_load": "not controlled (normal desktop session)"
+  },
+  "results": {
+    "b1-minimal": {
+      "binary": {
+        "binary_bytes": 7120312,
+        "gzip_bytes": 4149777,
+        "sha256": "1114fcbcdda6f0615f6c55a7737733d9c0a14cb78e97235730290502d1d70776",
+        "platform": "Darwin-x86_64",
+        "rustc": "1.99.1"
+      },
+      "startup_timing_ms": {
+        "process_to_main_ms": {
+          "runs": [
+            791.8,
+            166.8,
+            24.9,
+            265.8,
+            130.4,
+            121.4,
+            145.2,
+            144.1,
+            146.4,
+            158.5
+          ],
+          "min": 24.9,
+          "median": 145.8,
+          "max": 791.8
+        },
+        "window_create_ms": {
+          "runs": [
+            152.8,
+            170.1,
+            209.1,
+            217.2,
+            202.0,
+            201.2,
+            201.6,
+            192.4,
+            174.0,
+            165.3
+          ],
+          "min": 152.8,
+          "median": 196.8,
+          "max": 217.2
+        },
+        "first_frame_ms": {
+          "runs": [
+            386.7,
+            419.7,
+            531.2,
+            510.0,
+            415.1,
+            386.4,
+            457.7,
+            375.2,
+            347.9,
+            417.5
+          ],
+          "min": 347.9,
+          "median": 416.3,
+          "max": 531.2
+        },
+        "total_ms": {
+          "runs": [
+            1331.3,
+            756.7,
+            765.3,
+            992.9,
+            747.4,
+            709.0,
+            804.6,
+            711.7,
+            668.3,
+            741.3
+          ],
+          "min": 668.3,
+          "median": 752.0,
+          "max": 1331.3
+        }
+      },
+      "runs": 10,
+      "args": []
+    },
+    "file-manager-aster": {
+      "binary": {
+        "binary_bytes": 11314432,
+        "gzip_bytes": 5912464,
+        "sha256": "8f0e6cce1db87865df05429cbb752d2c26a7d637d1d845ea4fdfa67dc17f9b8f",
+        "platform": "Darwin-x86_64",
+        "rustc": "1.99.1"
+      },
+      "startup_timing_ms": {
+        "process_to_main_ms": {
+          "runs": [
+            15.4,
+            111.1,
+            56.3,
+            23.2,
+            17.6,
+            32.2,
+            17.7,
+            136.5,
+            137.9,
+            197.9
+          ],
+          "min": 15.4,
+          "median": 44.2,
+          "max": 197.9
+        },
+        "window_create_ms": {
+          "runs": [
+            405.4,
+            596.7,
+            558.9,
+            477.5,
+            392.2,
+            420.7,
+            309.8,
+            281.9,
+            328.5,
+            506.2
+          ],
+          "min": 281.9,
+          "median": 413.1,
+          "max": 596.7
+        },
+        "first_frame_ms": {
+          "runs": [
+            527.8,
+            571.8,
+            535.3,
+            535.1,
+            744.7,
+            462.0,
+            408.9,
+            415.8,
+            411.6,
+            494.8
+          ],
+          "min": 408.9,
+          "median": 511.3,
+          "max": 744.7
+        },
+        "total_ms": {
+          "runs": [
+            948.7,
+            1279.6,
+            1150.5,
+            1035.8,
+            1154.5,
+            914.9,
+            736.3,
+            834.2,
+            878.0,
+            1198.9
+          ],
+          "min": 736.3,
+          "median": 992.3,
+          "max": 1279.6
+        }
+      },
+      "runs": 10,
+      "args": []
+    }
+  },
+  "notes": [
+    "Both applications were measured with the same script (benchmarks/scripts/measure-startup.py, 10 runs each).",
+    "Process-to-main values include outliers (see min/max); they are reported, not removed.",
+    "file-manager-aster compiles its generated .slint source at every start (slint-interpreter). window_create_ms includes this cost; B1 compiles at build time. This difference is an adapter cost, not a framework comparison.",
+    "The earlier single-run B1 value (1065.5 ms, main() to first frame) was measured with a different probe and is superseded by this file.",
+    "Tauri baseline is not measured yet. No comparison with other frameworks is valid until that baseline exists.",
+    "Screen-level pixel verification was not possible: Screen Recording permission is not granted to the terminal (CGPreflightScreenCaptureAccess = false)."
+  ]
+}

@@ -1,24 +1,36 @@
-use std::time::Instant;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 slint::include_modules!();
 
+/// Wall-clock microseconds since the Unix epoch, shared clock with the timing script.
+fn epoch_us() -> u128 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_micros())
+        .unwrap_or(0)
+}
+
 fn main() -> Result<(), slint::PlatformError> {
-    // Measurement start: entry into main. Process creation time is not captured here,
-    // so the reported value is a lower bound of the SPEC.md cold-start definition.
-    let start = Instant::now();
+    // Timing output is produced only when ASTER_TIMING is set (see benchmarks/results/SCHEMA.md).
+    let timing = std::env::var_os("ASTER_TIMING").is_some();
+    if timing {
+        eprintln!("MAIN_START_US={}", epoch_us());
+    }
 
     let ui = MainWindow::new()?;
-
-    // First frame: report once after the first rendered frame (see benchmarks/results/SCHEMA.md).
-    let mut reported = false;
-    let report = ui.window().set_rendering_notifier(move |state, _| {
-        if !reported && matches!(state, slint::RenderingState::AfterRendering) {
-            reported = true;
-            eprintln!("FIRST_FRAME_MS={}", start.elapsed().as_millis());
+    if timing {
+        eprintln!("WINDOW_READY_US={}", epoch_us());
+        eprintln!("SCALE_FACTOR={}", ui.window().scale_factor());
+        let mut reported = false;
+        let notifier = ui.window().set_rendering_notifier(move |state, _| {
+            if !reported && matches!(state, slint::RenderingState::AfterRendering) {
+                reported = true;
+                eprintln!("FIRST_FRAME_US={}", epoch_us());
+            }
+        });
+        if let Err(e) = notifier {
+            eprintln!("rendering notifier unavailable: {e}");
         }
-    });
-    if let Err(e) = report {
-        eprintln!("rendering notifier unavailable: {e}");
     }
 
     let weak = ui.as_weak();
