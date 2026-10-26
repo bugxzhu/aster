@@ -69,3 +69,71 @@ fn child_wider_than_its_sidebar_is_reported_as_overflow_from_real_layout() {
         .expect("node reported");
     assert!(d.overflow > 0.0, "{d:?}");
 }
+
+// The following checks were added after a screenshot showed that the generated layout stretched
+// toolbar buttons, the search field and sidebar labels over the full window height. Widths alone
+// did not catch it, so these checks assert heights and vertical order in the real layout.
+
+fn rect(session: &aster_backend_slint::Session, id: &str) -> aster_backend_slint::probe::Rect {
+    aster_backend_slint::probe::rect_of(session.instance(), id)
+        .unwrap_or_else(|| panic!("no element {id}"))
+}
+
+#[test]
+fn toolbar_keeps_its_intrinsic_height_in_the_real_layout() {
+    i_slint_backend_testing::init_no_event_loop();
+    let (session, _app) = create(&file_manager_spec()).expect("window created");
+    session.instance().show().expect("shows");
+    let toolbar = rect(&session, "toolbar");
+    assert!(
+        toolbar.height < 60.0,
+        "toolbar stretched to {} dp",
+        toolbar.height
+    );
+}
+
+#[test]
+fn sidebar_labels_stack_from_the_top_of_the_sidebar() {
+    i_slint_backend_testing::init_no_event_loop();
+    let (session, _app) = create(&file_manager_spec()).expect("window created");
+    session.instance().show().expect("shows");
+    let first = rect(&session, "all_files_label");
+    let second = rect(&session, "recent_label");
+    assert!(first.y < 40.0, "first label not at top: y={}", first.y);
+    assert!(
+        second.y - first.y < 40.0,
+        "labels spread apart: {} vs {}",
+        first.y,
+        second.y
+    );
+}
+
+#[test]
+fn search_field_has_a_single_line_height() {
+    i_slint_backend_testing::init_no_event_loop();
+    let (session, _app) = create(&file_manager_spec()).expect("window created");
+    session.instance().show().expect("shows");
+    let search = rect(&session, "search");
+    assert!(
+        search.height < 60.0,
+        "search field stretched to {} dp",
+        search.height
+    );
+}
+
+#[test]
+fn file_list_fills_the_remaining_height_of_the_content_area() {
+    i_slint_backend_testing::init_no_event_loop();
+    let (session, _app) = create(&file_manager_spec()).expect("window created");
+    session.instance().show().expect("shows");
+    let list = rect(&session, "file_list");
+    let window_height = session.instance().window().size().height as f32
+        / session.instance().window().scale_factor();
+    // Window minus toolbar, search field and paddings leaves well over 300 dp.
+    assert!(
+        list.height > 300.0,
+        "file list only {} dp of {} dp window",
+        list.height,
+        window_height
+    );
+}

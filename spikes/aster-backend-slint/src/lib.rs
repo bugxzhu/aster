@@ -56,21 +56,41 @@ pub fn to_slint_source(spec: &UiSpec) -> Result<String, CodegenError> {
         let _ = writeln!(out, "    callback {}({arg});", prop_name(&c.name));
     }
     for child in &spec.root.children {
-        emit_node(&mut out, child, 1)?;
+        emit_node(&mut out, child, Some(spec.root.kind), 1)?;
     }
     out.push_str("}\n");
     Ok(out)
 }
 
-fn layout_props(node: &Node, indent: &str, out: &mut String) {
-    match node.width {
-        Length::Dp(v) => {
-            let _ = writeln!(out, "{indent}    width: {v}px;");
+/// Whether the subtree contains a list that should take the remaining vertical space.
+fn fills_vertically(node: &Node) -> bool {
+    matches!(node.widget, Some(Widget::FileList { .. }))
+        || node.children.iter().any(fills_vertically)
+}
+
+/// Stretch rules derived from the parent's layout direction. Slint gives every stretchable child
+/// an equal share of the free space; without these rules, buttons and labels grow to fill the
+/// window (see tests/real_geometry.rs).
+fn stretch_props(node: &Node, parent: Option<Kind>, indent: &str, out: &mut String) {
+    match parent {
+        Some(Kind::Row) => {
+            let stretch = if node.width == Length::Fill { 1 } else { 0 };
+            let _ = writeln!(out, "{indent}    horizontal-stretch: {stretch};");
+            // A child that contains a list takes the row's full height; others keep their own.
+            let v = if fills_vertically(node) { 1 } else { 0 };
+            let _ = writeln!(out, "{indent}    vertical-stretch: {v};");
         }
-        Length::Fill => {
-            let _ = writeln!(out, "{indent}    horizontal-stretch: 1;");
+        Some(Kind::Column) => {
+            let stretch = if fills_vertically(node) { 1 } else { 0 };
+            let _ = writeln!(out, "{indent}    vertical-stretch: {stretch};");
         }
-        Length::Wrap => {}
+        _ => {}
+    }
+}
+
+fn layout_props(node: &Node, parent: Option<Kind>, indent: &str, out: &mut String) {
+    if let Length::Dp(v) = node.width {
+        let _ = writeln!(out, "{indent}    width: {v}px;");
     }
     if node.min_width > 0.0 {
         let _ = writeln!(out, "{indent}    min-width: {}px;", node.min_width);
@@ -81,9 +101,15 @@ fn layout_props(node: &Node, indent: &str, out: &mut String) {
     if node.gap > 0.0 {
         let _ = writeln!(out, "{indent}    spacing: {}px;", node.gap);
     }
+    stretch_props(node, parent, indent, out);
 }
 
-fn emit_node(out: &mut String, node: &Node, depth: usize) -> Result<(), CodegenError> {
+fn emit_node(
+    out: &mut String,
+    node: &Node,
+    parent: Option<Kind>,
+    depth: usize,
+) -> Result<(), CodegenError> {
     let indent = "    ".repeat(depth);
     let id = element_id(&node.id);
     match (&node.kind, &node.widget) {
@@ -94,15 +120,20 @@ fn emit_node(out: &mut String, node: &Node, depth: usize) -> Result<(), CodegenE
                 "VerticalLayout"
             };
             let _ = writeln!(out, "{indent}{id} := {element} {{");
-            layout_props(node, &indent, out);
+            layout_props(node, parent, &indent, out);
+            if node.kind == Kind::Column && !node.children.iter().any(fills_vertically) {
+                // Without a child that takes the remaining height, keep children at the top
+                // instead of spreading them across the free space.
+                let _ = writeln!(out, "{indent}    alignment: start;");
+            }
             for child in &node.children {
-                emit_node(out, child, depth + 1)?;
+                emit_node(out, child, Some(node.kind), depth + 1)?;
             }
             let _ = writeln!(out, "{indent}}}");
         }
         (Kind::Leaf, Some(widget)) => {
             let _ = writeln!(out, "{indent}{id} := {} {{", element_name(widget));
-            layout_props(node, &indent, out);
+            layout_props(node, parent, &indent, out);
             emit_widget(out, widget, &indent);
             let _ = writeln!(out, "{indent}}}");
         }
