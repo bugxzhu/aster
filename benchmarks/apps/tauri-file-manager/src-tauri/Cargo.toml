@@ -1,0 +1,27 @@
+[package]
+name = "tauri-file-manager"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+# Isolated from the Aster workspace on purpose: Tauri has its own dependency tree and must not
+# change the Aster lock file.
+[workspace]
+
+[lib]
+name = "tauri_file_manager_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde_json = "1"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

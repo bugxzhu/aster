@@ -20,11 +20,15 @@ fn main() -> Result<(), slint::PlatformError> {
     let ui = MainWindow::new()?;
     if timing {
         eprintln!("WINDOW_READY_US={}", epoch_us());
-        eprintln!("SCALE_FACTOR={}", ui.window().scale_factor());
         let mut reported = false;
+        let weak_ui = ui.as_weak();
         let notifier = ui.window().set_rendering_notifier(move |state, _| {
             if !reported && matches!(state, slint::RenderingState::AfterRendering) {
                 reported = true;
+                // Read the scale factor here, after the window is shown. Before that it can report 1.0.
+                if let Some(ui) = weak_ui.upgrade() {
+                    eprintln!("SCALE_FACTOR={}", ui.window().scale_factor());
+                }
                 eprintln!("FIRST_FRAME_US={}", epoch_us());
             }
         });

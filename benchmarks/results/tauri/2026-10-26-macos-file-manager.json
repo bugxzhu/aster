@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-26",
+  "implementation": "tauri-2.12 (system WebView, WKWebView on macOS); page in vanilla HTML/CSS/JS",
+  "requirements": "benchmarks/comparison/requirements.md",
+  "functional_selftest": {
+    "F6_empty_result_rows": 0,
+    "F4_filter_matches": 2,
+    "F4_filter_restored": 24,
+    "F7_detail_after_select": "todo.txt",
+    "F9_theme_toggled": true,
+    "F9_theme_label": "Light",
+    "F10_zh_new_folder": "新建文件夹",
+    "F10_restored": true,
+    "F11_long_name_elided": true
+  },
+  "geometry_css_px": {
+    "sidebar": {
+      "x": 0,
+      "y": 0,
+      "width": 240,
+      "height": 720
+    },
+    "content": {
+      "x": 240,
+      "y": 0,
+      "width": 860,
+      "height": 720
+    },
+    "toolbar": {
+      "x": 256,
+      "y": 16,
+      "width": 828,
+      "height": 32
+    },
+    "search": {
+      "x": 256,
+      "y": 60,
+      "width": 828,
+      "height": 32
+    },
+    "file-list": {
+      "x": 256,
+      "y": 104,
+      "width": 536,
+      "height": 600
+    },
+    "detail": {
+      "x": 804,
+      "y": 104,
+      "width": 280,
+      "height": 600
+    },
+    "all_files_label": {
+      "x": 16,
+      "y": 16,
+      "width": 43.75,
+      "height": 16
+    },
+    "recent_label": {
+      "x": 16,
+      "y": 40,
+      "width": 42.296875,
+      "height": 16
+    },
+    "window": {
+      "width": 1100,
+      "height": 720
+    }
+  },
+  "executable": {
+    "binary_bytes": 3983704,
+    "gzip_bytes": 1293552,
+    "sha256": "738156737d8f1f6322998b23ce389f8295d44a28b49542a9290036b343c6b323",
+    "platform": "Darwin-x86_64",
+    "rustc": "1.99.1"
+  },
+  "bundle_app_kib": 3896,
+  "notes": [
+    "Window frame 1100x748 incl. 28 pt macOS title bar; web view 1100x720 (same convention as the Aster window).",
+    "Startup and idle memory were NOT re-measured under the current system load (load average ~30, memory exhausted). Earlier numbers are provisional.",
+    "Visual verification by screenshot only; IME, DPI and minimum-size checks remain manual.",
+    "Executable size excludes the WebView runtime, which is provided by macOS; the .app bundle size includes the bundled assets."
+  ]
+}

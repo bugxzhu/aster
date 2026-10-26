@@ -70,10 +70,7 @@ fn main() {
     };
     if timing {
         eprintln!("WINDOW_READY_US={}", epoch_us());
-        eprintln!(
-            "SCALE_FACTOR={}",
-            session.instance().window().scale_factor()
-        );
+        let weak_instance = session.instance().as_weak();
         let mut reported = false;
         let notifier = session
             .instance()
@@ -81,7 +78,11 @@ fn main() {
             .set_rendering_notifier(move |state, _| {
                 if !reported && matches!(state, slint::RenderingState::AfterRendering) {
                     reported = true;
-                    eprintln!("FIRST_FRAME_US={}", epoch_us());
+                    // Read the scale factor here, after the window is shown. Before that it can report 1.0.
+                if let Some(instance) = weak_instance.upgrade() {
+                    eprintln!("SCALE_FACTOR={}", instance.window().scale_factor());
+                }
+                eprintln!("FIRST_FRAME_US={}", epoch_us());
                 }
             });
         if let Err(e) = notifier {

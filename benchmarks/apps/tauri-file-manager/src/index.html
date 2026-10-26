@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>File Manager</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="nav-item" data-i18n="all_files"></div>
+      <div class="nav-item" data-i18n="recent"></div>
+      <div class="nav-item" data-i18n="favorites"></div>
+    </aside>
+    <main class="content">
+      <div class="toolbar">
+        <button id="btn-new-folder" data-i18n="new_folder"></button>
+        <button id="btn-refresh" data-i18n="refresh"></button>
+        <button id="btn-theme"></button>
+        <button id="btn-language" data-i18n="language"></button>
+      </div>
+      <input id="search" type="text" class="search" />
+      <div class="main-row">
+        <ul id="file-list" class="file-list"></ul>
+        <section class="detail"><div id="detail-text" class="detail-text"></div></section>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+/* Layout rules mirror benchmarks/comparison/requirements.md (F1-F11). */
+:root { color-scheme: light; --bg: #F7F8FA; --surface: #FFFFFF; --text: #20242C; --muted: #707784; --border: #E5E7EB; }
+body.dark { color-scheme: dark; --bg: #15171C; --surface: #22262E; --text: #E8EAF0; --muted: #9AA1AE; --border: #343A46; }
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--text); font: 13px -apple-system, "PingFang SC", sans-serif; min-width: 800px; min-height: 500px; overflow: hidden; }
+.app { display: flex; height: 100vh; }
+.sidebar { width: 240px; flex: none; padding: 16px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.nav-item { font-size: 13px; }
+.content { flex: 1; min-width: 0; min-height: 0; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.toolbar { display: flex; gap: 8px; flex: none; }
+.toolbar button { height: 32px; padding: 0 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font: inherit; flex: none; }
+.search { height: 32px; width: 100%; flex: none; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); padding: 0 10px; font: inherit; }
+.main-row { flex: 1; min-height: 0; display: flex; gap: 12px; }
+.file-list { flex: 1; min-width: 0; margin: 0; padding: 0; list-style: none; overflow-y: auto; }
+.file-row { display: flex; height: 32px; align-items: center; padding-left: 8px; }
+.file-row .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-row .kind { width: 120px; flex: none; }
+.file-row .modified { width: 100px; flex: none; }
+.file-row.selected { background: var(--border); }
+.detail { width: 280px; flex: none; padding: 12px; }
+.detail-text { white-space: normal; word-break: break-word; }
