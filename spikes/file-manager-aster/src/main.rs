@@ -79,10 +79,10 @@ fn main() {
                 if !reported && matches!(state, slint::RenderingState::AfterRendering) {
                     reported = true;
                     // Read the scale factor here, after the window is shown. Before that it can report 1.0.
-                if let Some(instance) = weak_instance.upgrade() {
-                    eprintln!("SCALE_FACTOR={}", instance.window().scale_factor());
-                }
-                eprintln!("FIRST_FRAME_US={}", epoch_us());
+                    if let Some(instance) = weak_instance.upgrade() {
+                        eprintln!("SCALE_FACTOR={}", instance.window().scale_factor());
+                    }
+                    eprintln!("FIRST_FRAME_US={}", epoch_us());
                 }
             });
         if let Err(e) = notifier {

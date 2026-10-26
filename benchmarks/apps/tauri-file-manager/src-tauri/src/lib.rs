@@ -55,7 +55,13 @@ pub fn run() {
             // On macOS the window frame includes a 28 pt title bar, so the frame is 748 pt high and the
             // web view is 720 pt high. Measured: innerHeight 720 with this value; 692 with 720.
             // The Aster window has the same frame (748) and content (720) geometry.
-            window.set_size(tauri::LogicalSize::new(1100.0, 748.0))?;
+            // ASTER_COMPARE_MIN_WINDOW=1 starts at the minimum size (requirement F1: 800 x 500 content).
+            let (w, h) = if std::env::var_os("ASTER_COMPARE_MIN_WINDOW").is_some() {
+                (800.0, 528.0)
+            } else {
+                (1100.0, 748.0)
+            };
+            window.set_size(tauri::LogicalSize::new(w, h))?;
             if timing_enabled() {
                 eprintln!("WINDOW_READY_US={}", epoch_us());
                 eprintln!("SCALE_FACTOR={}", window.scale_factor()?);

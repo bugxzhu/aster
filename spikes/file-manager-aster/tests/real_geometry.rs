@@ -137,3 +137,31 @@ fn file_list_fills_the_remaining_height_of_the_content_area() {
         window_height
     );
 }
+
+#[test]
+fn minimum_window_800_by_500_has_no_layout_diagnostics() {
+    // Requirement F1: minimum 800 x 500 logical px. Checked on the real layout at that size.
+    i_slint_backend_testing::init_no_event_loop();
+    let spec = file_manager_spec();
+    let (session, _app) = create(&spec).expect("window created");
+    session.instance().show().expect("shows");
+    session
+        .instance()
+        .window()
+        .set_size(slint::LogicalSize::new(800.0, 500.0));
+    let size = session.instance().window().size();
+    let scale = session.instance().window().scale_factor();
+    assert_eq!(
+        (size.width as f32 / scale, size.height as f32 / scale),
+        (800.0, 500.0),
+        "window was not resized"
+    );
+    let diags = aster_backend_slint::probe::check_geometry(session.instance(), &spec);
+    assert!(diags.is_empty(), "diagnostics at 800x500: {diags:?}");
+    let list = rect(&session, "file_list");
+    assert!(
+        list.height > 200.0,
+        "list too short at minimum size: {}",
+        list.height
+    );
+}

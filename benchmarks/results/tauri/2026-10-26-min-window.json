@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-26",
+  "check": "minimum window 800 x 500 content (requirement F1)",
+  "implementation": "tauri-2.12, macOS WKWebView",
+  "method": "ASTER_COMPARE_MIN_WINDOW=1 ASTER_COMPARE_GEOMETRY=1; frame 800x528 incl. 28 pt title bar gives 800x500 web view",
+  "window_css_px": {
+    "width": 800,
+    "height": 500
+  },
+  "all_elements_inside_window": true,
+  "elements": {
+    "sidebar": {
+      "width": 240,
+      "height": 500
+    },
+    "toolbar": {
+      "height": 32
+    },
+    "search": {
+      "height": 32
+    },
+    "file-list": {
+      "width": 236,
+      "height": 380
+    },
+    "detail": {
+      "width": 280,
+      "height": 380
+    }
+  },
+  "limit": "Automated geometry only. Visual appearance not checked by a human."
+}

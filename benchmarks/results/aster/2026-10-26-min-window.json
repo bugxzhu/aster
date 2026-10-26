@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-26",
+  "check": "minimum window 800 x 500 (requirement F1)",
+  "implementation": "slint-1.18.1 via aster-backend-slint",
+  "method": "tests/real_geometry.rs::minimum_window_800_by_500_has_no_layout_diagnostics: window_set_size(800,500), asserts window size, runs check_geometry (overflow/width) and asserts list height > 200",
+  "result": "passed (no diagnostics; list height > 200 dp)",
+  "limit": "Automated geometry only. Visual appearance not checked by a human."
+}
