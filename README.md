@@ -1,6 +1,6 @@
 # Aster
 
-Aster is an AI-native, native desktop application language and toolchain (project status: design and P0 validation).
+Aster is a native desktop development language for the era of AI-driven programming. It is an AI-native, native desktop application language and toolchain (project status: design and P0 validation).
 
 ## Layout
 
