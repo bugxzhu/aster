@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-26",
+  "experiment": "03 (Tauri): sidebar width 240 -> 280",
+  "change": "one line in benchmarks/apps/tauri-file-manager/src/styles.css (.sidebar width)",
+  "edits": 1,
+  "rebuild_required": true,
+  "rebuild_seconds_modified": 151.3,
+  "verification": {
+    "sidebar_width_px": 280,
+    "content_x_px": 280,
+    "content_width_px": 820,
+    "file_list_width_px_before": 536,
+    "file_list_width_px_after": 496,
+    "file_list_height_px": 600,
+    "toolbar_height_px": 32,
+    "search_height_px": 32
+  },
+  "screenshot": "benchmarks/results/evidence/2026-10-26-exp03-tauri-sidebar-280.png",
+  "reverted": true,
+  "rebuild_seconds_revert": 173.8,
+  "comparison_with_aster": {
+    "aster_edits": "1 structured patch (exp03-sidebar-280.json), validated with expect=240dp",
+    "aster_rebuild_required": false,
+    "note": "Aster regenerates the Slint source at start-up; Tauri embeds assets at build time."
+  }
+}
