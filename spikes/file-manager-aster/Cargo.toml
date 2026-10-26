@@ -12,6 +12,15 @@ path = "src/lib.rs"
 name = "file-manager-aster"
 path = "src/main.rs"
 
+[features]
+# Headless layout check (aster-check-layout). Not part of the application binary.
+layout-probe = ["aster-backend-slint/layout-probe", "dep:i-slint-backend-testing"]
+
+[[bin]]
+name = "aster-check-layout"
+path = "src/bin/aster_check_layout.rs"
+required-features = ["layout-probe"]
+
 [dependencies]
 aster-ui-model = { path = "../aster-ui-model" }
 aster-backend-slint = { path = "../aster-backend-slint" }
@@ -19,6 +28,7 @@ aster-backend-text = { path = "../aster-backend-text" }
 file-manager-core = { path = "../file-manager-core" }
 serde_json = "1"
 slint = "=1.18.1"
+i-slint-backend-testing = { version = "=1.18.1", optional = true }
 
 [dev-dependencies]
 aster-backend-slint = { path = "../aster-backend-slint", features = ["layout-probe"] }

@@ -1,0 +1,8 @@
+[
+  {
+    "op": "set_prop",
+    "target": "content",
+    "name": "min_width",
+    "value": "1000dp"
+  }
+]
