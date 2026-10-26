@@ -270,6 +270,7 @@ name = "aster-backend-slint"
 version = "0.0.0"
 dependencies = [
  "aster-ui-model",
+ "i-slint-backend-testing",
  "pollster",
  "slint",
  "slint-interpreter",

@@ -19,4 +19,4 @@ cargo run -p xtask -- check-english
 
 ## License
 
-MIT. The LICENSE file is pending the copyright holder and the third-party dependency review (see `docs/adr/015-license.md`).
+MIT. See `LICENSE`. Third-party dependency review and Slint distribution checks are still pending (see `docs/adr/015-license.md`).
